@@ -24,6 +24,7 @@ export const addUser = async (data) => {
         data.address,
         data.detailAddress,
         data.phoneNumber,
+        data.password,
       ]
     );
 

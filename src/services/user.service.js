@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { responseFromUser } from "../dtos/user.dto.js";
 import {
   addUser,
@@ -7,6 +8,9 @@ import {
 } from "../repositories/user.repository.js";
 
 export const userSignUp = async (data) => {
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
   const joinUserId = await addUser({
     email: data.email,
     name: data.name,
@@ -15,6 +19,7 @@ export const userSignUp = async (data) => {
     address: data.address,
     detailAddress: data.detailAddress,
     phoneNumber: data.phoneNumber,
+    password: hashedPassword,
   });
 
   //  addUser() 함수 내부 로직에 따르면
