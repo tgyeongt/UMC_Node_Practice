@@ -5,11 +5,19 @@ import { addReviewService } from "../services/review.service.js";
 export const handleAddReview = async (req, res, next) => {
   console.log("리뷰 추가 요청이 들어왔습니다!");
   console.log("body:", req.body);
+  console.log("params:", req.params); // storeId가 들어있는지 확인
 
   try {
-    const review = await addReviewService(bodyToReview(req.body));
+    const reviewData = {
+      ...bodyToReview(req.body),
+      storeId: Number(req.params.storeId),
+    };
+
+    const review = await addReviewService(reviewData);
+
     res.status(StatusCodes.CREATED).json({ result: review });
   } catch (err) {
+    console.error(err);
     res.status(StatusCodes.BAD_REQUEST).json({ message: err.message });
   }
 };

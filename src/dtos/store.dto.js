@@ -3,8 +3,6 @@ export const bodyToStore = (body) => {
     regionId: body.regionId,
     name: body.name,
     address: body.address,
-    // 특정 사용자로 가정 (ex. DB에 저장된 첫 번째 사용자)
-    userId: 1,
   };
 };
 
