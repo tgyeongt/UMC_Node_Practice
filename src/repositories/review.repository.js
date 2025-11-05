@@ -1,29 +1,45 @@
-import { pool } from "../db.config.js";
+import { prisma } from "../db.config.js";
 
-export const getStoreById = async (storeId) => {
-  const conn = await pool.getConnection();
-  try {
-    const [store] = await pool.query(`SELECT * FROM store WHERE id = ?;`, [
-      storeId,
-    ]);
-    return store.length ? store[0] : null;
-  } finally {
-    conn.release();
-  }
+// 리뷰 추가
+export const addReview = async (data) => {
+  const created = await prisma.review.create({
+    data: {
+      storeId: data.storeId,
+      userId: data.userId,
+      body: data.body,
+      score: data.score,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    include: {
+      user: true,
+      store: true,
+      images: true,
+    },
+  });
+
+  return created;
 };
 
-export const addReview = async (data) => {
-  const conn = await pool.getConnection();
-  try {
-    const [result] = await pool.query(
-      `INSERT INTO review (store_id, member_id, body, score, created_at, updated_at)
-       VALUES (?, ?, ?, ?, NOW(), NOW());`,
-      [data.storeId, data.userId, data.body, data.score]
-    );
-    return { id: result.insertId, ...data };
-  } catch (err) {
-    throw new Error(`리뷰 추가 중 오류 발생 (${err})`);
-  } finally {
-    conn.release();
+// 특정 가게의 리뷰 목록 (커서 기반 페이지네이션)
+export const getAllStoreReviews = async (storeId, cursor = null, take = 5) => {
+  const query = {
+    where: { storeId: Number(storeId) },
+    include: {
+      user: true,
+      store: true,
+      images: true,
+    },
+    orderBy: { id: "asc" },
+    take,
+  };
+
+  // 커서가 있을 경우 적용
+  if (cursor) {
+    query.cursor = { id: Number(cursor) };
+    query.skip = 1; // 커서 중복 방지
   }
+
+  const reviews = await prisma.review.findMany(query);
+  return reviews;
 };

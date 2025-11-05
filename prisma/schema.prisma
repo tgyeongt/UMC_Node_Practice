@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model FoodCategory {
+  id               Int                  @id @default(autoincrement())
+  name             String               @db.VarChar(100)
+  userFavorCategory UserFavorCategory[]
+}
+
+model User {
+  id               BigInt               @id @default(autoincrement())
+  name             String               @db.VarChar(20)
+  gender           String               @db.VarChar(20)
+  age              Int
+  address          String               @db.VarChar(40)
+  detailAddress    String?              @map("detail_address") @db.VarChar(40)
+  status           String               @db.VarChar(15)
+  inactiveDate     DateTime             @map("inactive_date") @db.DateTime(0)
+  socialType       String               @map("social_type") @db.VarChar(10)
+  createdAt        DateTime             @map("created_at") @db.DateTime(6)
+  updatedAt        DateTime             @map("updated_at") @db.DateTime(6)
+  email            String               @unique(map: "email") @db.VarChar(50)
+  point            Int
+  birth            DateTime             @db.Date
+  phoneNumber      String               @map("phone_number") @db.VarChar(50)
+  password         String               @db.VarChar(15)
+  userFavorCategory UserFavorCategory[]
+  reviews          Review[]
+  userMissions     UserMission[]
+  userAgrees       UserAgree[]
+}
+
+model UserFavorCategory {
+  id             Int             @id @default(autoincrement())
+  userId         BigInt          @map("user_id")
+  foodCategoryId Int             @map("food_category_id")
+  foodCategory   FoodCategory    @relation(fields: [foodCategoryId], references: [id])
+  user           User            @relation(fields: [userId], references: [id])
+
+  @@index([foodCategoryId], map: "f_category_id")
+  @@index([userId], map: "user_id")
+}
+
+model Region {
+  id      Int      @id @default(autoincrement())
+  name    String   @db.VarChar(50)
+  stores  Store[]
+}
+
+model Store {
+  id         Int        @id @default(autoincrement())
+  name       String     @db.VarChar(100)
+  address    String     @db.VarChar(255)
+  regionId   Int        @map("region_id")
+  region     Region     @relation(fields: [regionId], references: [id])
+  reviews    Review[]
+  missions   Mission[]
+  createdAt  DateTime   @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime?  @map("updated_at") @db.DateTime(6)
+}
+
+model Review {
+  id         Int           @id @default(autoincrement())
+  storeId    Int           @map("store_id")
+  userId     BigInt        @map("user_id")
+  body       String        @db.Text
+  score      Int
+  createdAt  DateTime      @map("created_at") @db.DateTime(6)
+  updatedAt  DateTime?     @map("updated_at") @db.DateTime(6)
+  user       User          @relation(fields: [userId], references: [id])
+  store      Store         @relation(fields: [storeId], references: [id])
+  images     ReviewImage[]
+}
+
+model ReviewImage {
+  id        Int      @id @default(autoincrement())
+  reviewId  Int      @map("review_id")
+  url       String   @db.VarChar(255)
+  review    Review   @relation(fields: [reviewId], references: [id])
+}
+
+model Mission {
+  id           Int           @id @default(autoincrement())
+  storeId      Int           @map("store_id")
+  name         String        @db.VarChar(100)
+  store        Store         @relation(fields: [storeId], references: [id])
+  userMissions UserMission[]
+}
+
+model UserMission {
+  id         Int      @id @default(autoincrement())
+  userId     BigInt   @map("user_id")
+  missionId  Int      @map("mission_id")
+  status     String   @db.VarChar(20)
+  user       User     @relation(fields: [userId], references: [id])
+  mission    Mission  @relation(fields: [missionId], references: [id])
+}
+
+model Terms {
+  id         Int         @id @default(autoincrement())
+  title      String      @db.VarChar(100)
+  content    String      @db.Text
+  userAgrees UserAgree[]
+}
+
+model UserAgree {
+  id       Int     @id @default(autoincrement())
+  userId   BigInt  @map("user_id")
+  termsId  Int     @map("terms_id")
+  status   String  @db.VarChar(10)
+  user     User    @relation(fields: [userId], references: [id])
+  terms    Terms   @relation(fields: [termsId], references: [id])
+}

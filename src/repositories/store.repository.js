@@ -1,34 +1,21 @@
-import { pool } from "../db.config.js";
+import { prisma } from "../db.config.js";
 
-export const addStore = async (data) => {
-  const conn = await pool.getConnection();
-  try {
-    const [result] = await pool.query(
-      `INSERT INTO store (region_id, name, address, created_at)
-       VALUES (?, ?, ?, NOW());`,
-      [data.regionId, data.name, data.address]
-    );
-    return { id: result.insertId, ...data };
-  } catch (err) {
-    throw new Error(`가게 추가 중 오류 발생 (${err})`);
-  } finally {
-    conn.release();
-  }
+// id로 가게 단일 조회
+export const getStoreById = async (storeId) => {
+  const store = await prisma.store.findUnique({
+    where: { id: storeId },
+  });
+  return store;
 };
 
-export const getStore = async (storeId) => {
-  const conn = await pool.getConnection();
-  try {
-    const [rows] = await conn.query(
-      `SELECT id, region_id, name, address, created_at
-       FROM store
-       WHERE id = ?;`,
-      [storeId.id]
-    );
-    return rows[0];
-  } catch (err) {
-    throw new Error(`가게 조회 중 오류 발생 (${err})`);
-  } finally {
-    conn.release();
-  }
+// 가게 추가
+export const addStore = async (data) => {
+  const created = await prisma.store.create({
+    data: {
+      region_id: data.regionId,
+      name: data.name,
+      address: data.address,
+    },
+  });
+  return created;
 };

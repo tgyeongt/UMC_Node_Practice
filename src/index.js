@@ -3,7 +3,10 @@ import express from "express";
 import cors from "cors";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import { handleAddStore } from "./controllers/store.controller.js";
-import { handleAddReview } from "./controllers/review.controller.js";
+import {
+  handleAddReview,
+  handleListStoreReviews,
+} from "./controllers/review.controller.js";
 import { handleChallengeMission } from "./controllers/mission.controller.js";
 
 dotenv.config();
@@ -32,6 +35,9 @@ app.post("/api/v1/stores", handleAddStore);
 
 // 1-2. 가게에 리뷰 추가하기
 app.post("/api/v1/stores/:storeId/reviews", handleAddReview);
+
+// 1-3. 가게 리뷰 조회하기
+app.get("/api/v1/stores/:storeId/reviews", handleListStoreReviews);
 
 // 1-4. 미션 도전하기
 app.post("/api/v1/missions/:missionId/challenge", handleChallengeMission);
