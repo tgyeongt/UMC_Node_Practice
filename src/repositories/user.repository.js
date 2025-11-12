@@ -16,25 +16,25 @@ export const getUser = async (userId) => {
 
 // 음식 선호 카테고리 매핑
 export const setPreference = async (userId, foodCategoryId) => {
-  await prisma.user_favor_category.create({
+  await prisma.userFavorCategory.create({
     data: {
-      user_id: userId,
-      food_category_id: foodCategoryId,
+      userId: userId,
+      foodCategoryId: foodCategoryId,
     },
   });
 };
 
 // 선호 카테고리 조회
 export const getUserPreferencesByUserId = async (userId) => {
-  const preferences = await prisma.user_favor_category.findMany({
+  const preferences = await prisma.userFavorCategory.findMany({
     select: {
       id: true,
-      user_id: true,
-      food_category_id: true,
-      food_category: true,
+      userId: true,
+      foodCategoryId: true,
+      foodCategory: true,
     },
-    where: { user_id: userId },
-    orderBy: { food_category_id: "asc" },
+    where: { userId },
+    orderBy: { foodCategoryId: "asc" },
   });
   return preferences;
 };

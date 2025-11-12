@@ -6,8 +6,14 @@ import { handleAddStore } from "./controllers/store.controller.js";
 import {
   handleAddReview,
   handleListStoreReviews,
+  handleListUserReviews,
 } from "./controllers/review.controller.js";
-import { handleChallengeMission } from "./controllers/mission.controller.js";
+import {
+  handleChallengeMission,
+  handleListStoreMissions,
+  handleListUserMissions,
+  handleCompleteMission,
+} from "./controllers/mission.controller.js";
 
 dotenv.config();
 
@@ -27,20 +33,35 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+/* users */
 // 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
 
-// 1-1. 특정 지역에 가게 추가하기
+// 내가 작성한 리뷰 목록
+app.get("/api/v1/users/:userId/reviews", handleListUserReviews);
+
+// 내가 진행 중인 미션 목록
+app.get("/api/v1/users/:userId/missions", handleListUserMissions);
+
+/* stores */
+// 특정 지역에 가게 추가하기
 app.post("/api/v1/stores", handleAddStore);
 
-// 1-2. 가게에 리뷰 추가하기
+// 특정 가게에 리뷰 추가하기
 app.post("/api/v1/stores/:storeId/reviews", handleAddReview);
 
-// 1-3. 가게 리뷰 조회하기
+// 특정 가게 리뷰 조회하기
 app.get("/api/v1/stores/:storeId/reviews", handleListStoreReviews);
 
-// 1-4. 미션 도전하기
+// 특정 가게의 미션 목록 조회하기
+app.get("/api/v1/stores/:storeId/missions", handleListStoreMissions);
+
+/* missions */
+// 미션 도전하기
 app.post("/api/v1/missions/:missionId/challenge", handleChallengeMission);
+
+// 진행 중인 미션 완료 처리
+app.patch("/api/v1/missions/:missionId/complete", handleCompleteMission);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

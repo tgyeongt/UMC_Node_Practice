@@ -37,3 +37,20 @@ export const handleListStoreReviews = async (req, res, next) => {
       .json({ message: err.message });
   }
 };
+
+// 내가 작성한 리뷰 목록
+export const handleListUserReviews = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const reviews = await prisma.review.findMany({
+      where: { user_id: Number(userId) },
+      include: { store: true },
+      orderBy: { id: "desc" },
+    });
+
+    res.status(StatusCodes.OK).json({ reviews });
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: err.message });
+  }
+};

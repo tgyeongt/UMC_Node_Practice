@@ -2,7 +2,7 @@ import { prisma } from "../db.config.js";
 
 // 특정 유저가 특정 미션에 참여 중인지 확인
 export const getUserMission = async (userId, missionId) => {
-  const mission = await prisma.user_mission.findFirst({
+  const mission = await prisma.userMission.findFirst({
     where: {
       user_id: userId,
       mission_id: missionId,
@@ -13,7 +13,7 @@ export const getUserMission = async (userId, missionId) => {
 
 // 유저가 미션 도전 시작
 export const insertUserMission = async (userId, missionId) => {
-  const created = await prisma.user_mission.create({
+  const created = await prisma.userMission.create({
     data: {
       user_id: userId,
       mission_id: missionId,
@@ -21,4 +21,35 @@ export const insertUserMission = async (userId, missionId) => {
     },
   });
   return created;
+};
+
+// 특정 가게의 모든 미션 목록
+export const getMissionsByStore = async (storeId) => {
+  return await prisma.mission.findMany({
+    where: { store_id: Number(storeId) },
+    orderBy: { id: "asc" },
+  });
+};
+
+// 특정 유저의 모든 미션 목록
+export const getUserMissions = async (userId, status) => {
+  const where = { user_id: Number(userId) };
+  if (status) where.status = status;
+
+  return await prisma.userMission.findMany({
+    where,
+    include: { mission: true },
+    orderBy: { id: "asc" },
+  });
+};
+
+// 미션 완료 처리
+export const completeUserMission = async (missionId) => {
+  return await prisma.userMission.update({
+    where: { id: Number(missionId) },
+    data: {
+      status: "완료",
+      completed_at: new Date(),
+    },
+  });
 };

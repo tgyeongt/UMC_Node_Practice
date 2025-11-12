@@ -23,23 +23,39 @@ export const addReview = async (data) => {
 
 // 특정 가게의 리뷰 목록 (커서 기반 페이지네이션)
 export const getAllStoreReviews = async (storeId, cursor = null, take = 5) => {
-  const query = {
-    where: { storeId: Number(storeId) },
-    include: {
-      user: true,
+  const whereClause = {
+    storeId: Number(storeId),
+  };
+
+  if (cursor) {
+    whereClause.id = { gt: Number(cursor) };
+  }
+
+  const reviews = await prisma.review.findMany({
+    where: whereClause,
+    select: {
+      id: true,
+      content: true,
+      storeId: true,
+      userId: true,
       store: true,
+      user: true,
       images: true,
     },
     orderBy: { id: "asc" },
     take,
-  };
+  });
 
-  // 커서가 있을 경우 적용
-  if (cursor) {
-    query.cursor = { id: Number(cursor) };
-    query.skip = 1; // 커서 중복 방지
-  }
-
-  const reviews = await prisma.review.findMany(query);
   return reviews;
+};
+
+// 내가 작성한 리뷰 목록
+export const getReviewsByUser = async (userId) => {
+  return await prisma.review.findMany({
+    where: { userId: Number(userId) },
+    include: {
+      store: true,
+    },
+    orderBy: { id: "desc" },
+  });
 };

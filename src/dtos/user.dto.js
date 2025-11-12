@@ -1,27 +1,39 @@
-export const bodyToUser = (body) => {
-  const birth = new Date(body.birth); //날짜 변환
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc.js";
+import timezone from "dayjs/plugin/timezone.js";
 
-  return {
-    email: body.email, //필수
-    name: body.name, // 필수
-    gender: body.gender, // 필수
-    birth, // 필수
-    address: body.address || "", //선택
-    detailAddress: body.detailAddress || "", //선택
-    phoneNumber: body.phoneNumber, //필수
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+export const bodyToUser = (body) => {
+  const birth = dayjs(body.birth).tz("Asia/Seoul").toDate();
+
+  const userData = {
+    email: body.email,
+    name: body.name,
+    gender: body.gender,
+    birth,
+    address: body.address || "",
+    detailAddress: body.detailAddress || "",
+    phoneNumber: body.phoneNumber,
     password: body.password,
-    preferences: body.preferences, // 필수
   };
+
+  const preferenceIds = Array.isArray(body.preferences)
+    ? body.preferences.map(Number)
+    : [];
+
+  return { userData, preferenceIds };
 };
 
-export const responseFromUser = ({ user, preferences }) => {
-  const preferFoods = preferences.map(
-    (preference) => preference.foodCategory.name
-  );
+export const responseFromUser = ({ user, userFavorCategories }) => {
+  const preferFoods = userFavorCategories.map((ufc) => ufc.foodCategory.name);
 
   return {
     email: user.email,
     name: user.name,
     preferCategory: preferFoods,
+    createdAt: dayjs(user.createdAt).tz("Asia/Seoul").toDate(),
+    updatedAt: dayjs(user.updatedAt).tz("Asia/Seoul").toDate(),
   };
 };

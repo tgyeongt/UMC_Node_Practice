@@ -98,6 +98,7 @@ model UserMission {
   userId     BigInt   @map("user_id")
   missionId  Int      @map("mission_id")
   status     String   @db.VarChar(20)
+  completed_at DateTime? @db.DateTime(6) 
   user       User     @relation(fields: [userId], references: [id])
   mission    Mission  @relation(fields: [missionId], references: [id])
 }

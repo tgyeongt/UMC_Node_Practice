@@ -1,6 +1,7 @@
 import {
   addReview,
   getAllStoreReviews,
+  getReviewsByUser,
 } from "../repositories/review.repository.js";
 import { getStoreById } from "../repositories/store.repository.js";
 import { responseFromReview } from "../dtos/review.dto.js";
@@ -16,4 +17,9 @@ export const addReviewService = async (data) => {
 export const listStoreReviews = async (storeId) => {
   const reviews = await getAllStoreReviews(storeId);
   return responseFromReview(reviews);
+};
+
+export const listUserReviews = async (userId) => {
+  const reviews = await getReviewsByUser(userId);
+  return reviews;
 };
