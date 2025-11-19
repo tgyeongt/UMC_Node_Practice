@@ -7,8 +7,14 @@ export const handleUserSignUp = async (req, res, next) => {
   console.log("body:", req.body);
 
   try {
-    const user = await userSignUp(req.body);
-    res.status(201).json({ result: user });
+    const { userData, preferenceIds } = bodyToUser(req.body);
+
+    const user = await userSignUp({
+      ...userData,
+      preferences: preferenceIds,
+    });
+
+    res.status(StatusCodes.OK).success(user);
   } catch (error) {
     next(error);
   }

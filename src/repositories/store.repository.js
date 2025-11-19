@@ -12,7 +12,7 @@ export const getStoreById = async (storeId) => {
 export const addStore = async (data) => {
   const created = await prisma.store.create({
     data: {
-      region_id: data.regionId,
+      regionId: data.regionId,
       name: data.name,
       address: data.address,
     },

@@ -18,7 +18,7 @@ export const responseFromReview = (review) => ({
   userId: review.userId,
   body: review.body,
   score: review.score,
-  ccreatedAt: dayjs(review.createdAt).tz("Asia/Seoul").toDate(),
+  createdAt: dayjs(review.createdAt).tz("Asia/Seoul").toDate(),
   updatedAt: review.updatedAt
     ? dayjs(review.updatedAt).tz("Asia/Seoul").toDate()
     : null,

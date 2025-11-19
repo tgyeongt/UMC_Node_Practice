@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import { handleAddStore } from "./controllers/store.controller.js";
 import {
@@ -20,14 +22,43 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
-app.use(cors()); // cors 방식 허용
-app.use(express.static("public")); // 정적 파일 접근
+// ------------------- 공통 응답 헬퍼 -------------------
 
-// request의 본문을 json으로 해석할 수 있도록 함 (JSON 형태의 요청 body를 파싱하기 위함)
+app.use((req, res, next) => {
+  res.success = (success) => {
+    return res.json({ resultType: "SUCCESS", error: null, success });
+  };
+
+  res.error = ({ errorCode = "unknown", reason = null, data = null }) => {
+    return res.json({
+      resultType: "FAIL",
+      error: { errorCode, reason, data },
+      success: null,
+    });
+  };
+
+  next();
+});
+
+// ------------------- 미들웨어 적용 -------------------
+
+// 요청 로깅 (morgan)
+app.use(morgan("dev"));
+
+// 쿠키 처리 (cookie-parser)
+app.use(cookieParser());
+
+// CORS 허용
+app.use(cors());
+
+// 정적 파일 접근
+app.use(express.static("public"));
+
+// JSON, URL-encoded 요청 처리
 app.use(express.json());
-
-// 단순 객체 문자열 형태로 본문 데이터 해석
 app.use(express.urlencoded({ extended: false }));
+
+// ------------------- 라우팅 -------------------
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -63,6 +94,21 @@ app.post("/api/v1/missions/:missionId/challenge", handleChallengeMission);
 // 진행 중인 미션 완료 처리
 app.patch("/api/v1/missions/:missionId/complete", handleCompleteMission);
 
+// ------------------- 전역 오류 핸들러 -------------------
+
+app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  res.status(err.statusCode || 500).error({
+    errorCode: err.errorCode || "unknown",
+    reason: err.reason || err.message || null,
+    data: err.data || null,
+  });
+});
+
+// 서버 시작
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

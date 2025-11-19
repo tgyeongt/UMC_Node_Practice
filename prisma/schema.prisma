@@ -21,15 +21,15 @@ model User {
   address          String               @db.VarChar(40)
   detailAddress    String?              @map("detail_address") @db.VarChar(40)
   status           String               @db.VarChar(15)
-  inactiveDate     DateTime             @map("inactive_date") @db.DateTime(0)
+  inactiveDate     DateTime?             @map("inactive_date") @db.DateTime(0)
   socialType       String               @map("social_type") @db.VarChar(10)
-  createdAt        DateTime             @map("created_at") @db.DateTime(6)
-  updatedAt        DateTime             @map("updated_at") @db.DateTime(6)
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
   email            String               @unique(map: "email") @db.VarChar(50)
   point            Int
   birth            DateTime             @db.Date
   phoneNumber      String               @map("phone_number") @db.VarChar(50)
-  password         String               @db.VarChar(15)
+  password         String               @db.VarChar(60)
   userFavorCategory UserFavorCategory[]
   reviews          Review[]
   userMissions     UserMission[]

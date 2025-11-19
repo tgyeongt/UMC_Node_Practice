@@ -8,15 +8,25 @@ dayjs.extend(timezone);
 export const bodyToUser = (body) => {
   const birth = dayjs(body.birth).tz("Asia/Seoul").toDate();
 
+  const now = dayjs().tz("Asia/Seoul");
+  const age = now.year() - dayjs(birth).year();
+
   const userData = {
     email: body.email,
     name: body.name,
     gender: body.gender,
     birth,
+    age,
     address: body.address || "",
     detailAddress: body.detailAddress || "",
     phoneNumber: body.phoneNumber,
     password: body.password,
+    status: "active",
+    socialType: "local",
+    inactiveDate: null,
+    point: 0,
+    createdAt: now.toDate(),
+    updatedAt: now.toDate(),
   };
 
   const preferenceIds = Array.isArray(body.preferences)
@@ -26,7 +36,7 @@ export const bodyToUser = (body) => {
   return { userData, preferenceIds };
 };
 
-export const responseFromUser = ({ user, userFavorCategories }) => {
+export const responseFromUser = ({ user, userFavorCategories = [] }) => {
   const preferFoods = userFavorCategories.map((ufc) => ufc.foodCategory.name);
 
   return {
