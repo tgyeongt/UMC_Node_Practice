@@ -56,6 +56,7 @@ export const handleAddReview = async (req, res, next) => {
     const reviewData = {
       ...bodyToReview(req.body),
       storeId: Number(req.params.storeId),
+      userId: req.user.id,
     };
 
     const review = await addReviewService(reviewData);

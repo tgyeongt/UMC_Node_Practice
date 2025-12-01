@@ -74,16 +74,38 @@ export const handleUserSignUp = async (req, res, next) => {
     };
   */
   try {
-    const { userData, preferenceIds } = bodyToUser(req.body);
-
-    const user = await userSignUp({
-      ...userData,
-      preferences: preferenceIds,
-    });
-
-    res.status(StatusCodes.OK).success(user);
+    const { userData, preferenceIds } = bodyToUser(req.body); // 기존 DTO 사용
+    if (!userData?.email) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .error({ errorCode: "U001", reason: "email is required" });
+    }
+    const user = await createOrUpdateUser(userData, preferenceIds || []);
+    return res.status(StatusCodes.OK).success(user);
   } catch (error) {
     next(error);
+  }
+};
+
+// 나의 정보 수정
+export const handleUpdateMyProfile = async (req, res, next) => {
+  try {
+    const currentUserId = req.user?.id;
+    if (!currentUserId) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .error({ errorCode: "AUTH001", reason: "Not authenticated" });
+    }
+
+    const { userData, preferenceIds } = bodyToUser(req.body); // reuse DTO
+    const updated = await updateUserById(
+      currentUserId,
+      userData,
+      preferenceIds || []
+    );
+    return res.status(StatusCodes.OK).success(updated);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -132,7 +154,11 @@ export const handleListUserReviews = async (req, res) => {
     };
   */
   try {
-    const { userId } = req.params;
+    if (req.user && Number(req.user.id) !== Number(userId)) {
+      return res
+        .status(StatusCodes.FORBIDDEN)
+        .json({ message: "다른 사용자의 리뷰는 조회할 수 없습니다." });
+    }
 
     const reviews = await prisma.review.findMany({
       where: { user_id: Number(userId) },
