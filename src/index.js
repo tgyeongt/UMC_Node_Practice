@@ -3,12 +3,17 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import { handleUserSignUp } from "./controllers/user.controller.js";
+import swaggerAutogen from "swagger-autogen";
+import swaggerUiExpress from "swagger-ui-express";
+
+import {
+  handleUserSignUp,
+  handleListUserReviews,
+} from "./controllers/user.controller.js";
 import { handleAddStore } from "./controllers/store.controller.js";
 import {
   handleAddReview,
   handleListStoreReviews,
-  handleListUserReviews,
 } from "./controllers/review.controller.js";
 import {
   handleChallengeMission,
@@ -21,6 +26,46 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+
+// ------------------- Swagger 설정 -------------------
+
+app.use(
+  "/docs",
+  swaggerUiExpress.serve,
+  swaggerUiExpress.setup(
+    {},
+    {
+      swaggerOptions: {
+        url: "/openapi.json",
+      },
+    }
+  )
+);
+
+app.get("/openapi.json", async (req, res, next) => {
+  // #swagger.ignore = true
+  const options = {
+    openapi: "3.0.0",
+    disableLogs: true,
+    writeOutputFile: false,
+  };
+  const outputFile = "/dev/null"; // 파일 출력은 사용하지 않습니다.
+  const routes = ["./src/index.js"];
+  const doc = {
+    info: {
+      title: "UMC 9th",
+      description: "UMC 9th Node.js 테스트 프로젝트입니다.",
+    },
+    host: "localhost:3000",
+  };
+
+  try {
+    const result = await swaggerAutogen(options)(outputFile, routes, doc);
+    res.json(result ? result.data : null);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // ------------------- 공통 응답 헬퍼 -------------------
 

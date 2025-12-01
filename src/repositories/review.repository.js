@@ -48,14 +48,3 @@ export const getAllStoreReviews = async (storeId, cursor = null, take = 5) => {
 
   return reviews;
 };
-
-// 내가 작성한 리뷰 목록
-export const getReviewsByUser = async (userId) => {
-  return await prisma.review.findMany({
-    where: { userId: Number(userId) },
-    include: {
-      store: true,
-    },
-    orderBy: { id: "desc" },
-  });
-};

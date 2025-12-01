@@ -1,7 +1,6 @@
 import {
   addReview,
   getAllStoreReviews,
-  getReviewsByUser,
 } from "../repositories/review.repository.js";
 import { getStoreById } from "../repositories/store.repository.js";
 import { responseFromReview } from "../dtos/review.dto.js";

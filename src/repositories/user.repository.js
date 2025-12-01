@@ -38,3 +38,14 @@ export const getUserPreferencesByUserId = async (userId) => {
   });
   return preferences;
 };
+
+// 내가 작성한 리뷰 목록
+export const getReviewsByUser = async (userId) => {
+  return await prisma.review.findMany({
+    where: { userId: Number(userId) },
+    include: {
+      store: true,
+    },
+    orderBy: { id: "desc" },
+  });
+};
